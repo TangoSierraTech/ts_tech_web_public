@@ -1,0 +1,118 @@
+---
+   - name: install gcc
+     yum:
+       name: gcc
+       state: latest
+       disable_gpg_check: True
+
+   - name: install python
+     yum:
+       name: python
+       state: latest
+       disable_gpg_check: True
+
+   - name: install python-devel
+     yum:
+       name: python-devel
+       state: latest
+       disable_gpg_check: True
+
+   - name: install python-pip
+     yum:
+       name: python-pip
+       state: latest
+       disable_gpg_check: True
+
+   - name: install apache
+     yum:
+       name: nginx
+       state: latest
+       disable_gpg_check: True
+
+   - name: install php
+     yum:
+       name: php
+       state: latest
+       disable_gpg_check: True
+
+   - name: install php-fpm
+     yum:
+       name: php-fpm
+       state: latest
+       disable_gpg_check: True
+
+   - name: install php-mbstring
+     yum:
+       name: php-mbstring
+       state: latest
+       disable_gpg_check: True
+
+   - name: install php-mcrypt
+     yum:
+       name: php-mcrypt
+       state: latest
+       disable_gpg_check: True
+
+   - name: install php-pdo
+     yum:
+       name: php-pdo
+       state: latest
+       disable_gpg_check: True
+
+   - name: install php-mysql
+     yum:
+       name: php-mysql
+       state: latest
+       disable_gpg_check: True
+
+   - name: install php-xml
+     yum:
+       name: php-xml
+       state: latest
+       disable_gpg_check: True
+
+   - name: install php-gd
+     yum:
+       name: php-gd
+       state: latest
+       disable_gpg_check: True
+
+   - name: install mysql
+     yum:
+       name: mysql
+       state: latest
+       disable_gpg_check: True
+
+   - name: install google-cloud-storage python module
+     pip:
+       name: google-cloud-storage
+
+   - name: Copy nginx config to Webserver
+     template:
+       src: nginx.conf
+       dest: /etc/nginx/nginx.conf
+       mode: 0644
+       owner: tsimson
+       group: tsimson
+
+   - name: ansible create directory
+     file:
+       path: /var/www/html/
+       state: directory
+
+   - name: Template tool script to web host.
+     template:
+       src: wp_db_gb_sync.py
+       dest: /root/wp_db_gb_sync.py
+
+   - name: Set httpd_can_network_connect flag on and keep it persistent across reboots
+     seboolean:
+       name: httpd_can_network_connect
+       state: yes
+       persistent: yes
+
+   - name: Bring Up services
+     shell: |
+        sudo systemctl start nginx
+        sudo systemctl start php-fpm
+

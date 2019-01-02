@@ -1,0 +1,88 @@
+---
+   - name: Add repository
+     yum_repository:
+       name: epel
+       description: EPEL YUM repo
+       baseurl: http://download.fedoraproject.org/pub/epel/$releasever/$basearch/
+
+   - name: install python-pip
+     yum:
+       name: python-pip
+       state: latest
+       disable_gpg_check: True
+
+   - name: install python-devel
+     yum:
+       name: python-devel
+       state: latest
+       disable_gpg_check: True
+
+   - name: install gcc
+     yum:
+       name: gcc
+       state: latest
+       disable_gpg_check: True
+
+   - name: install MySQL
+     yum:
+       name: mariadb
+       state: latest
+       disable_gpg_check: True
+
+   - name: install MySQL
+     yum:
+       name: mariadb-server
+       state: latest
+       disable_gpg_check: True
+
+   - name: install MySQL-python
+     yum:
+       name: MySQL-python
+       state: latest
+       disable_gpg_check: True
+
+   - name: install MySQL devel
+     yum:
+       name: mysql-devel
+       state: latest
+       disable_gpg_check: True
+
+   - name: install MySQL-python python module
+     pip:
+       name: mysqlclient
+
+   - name: Copy content files from google storage.
+     shell: |
+        sudo gsutil cp -r gs://ts-wp-db-dump ~
+
+   - name: Update sql file
+     replace:
+       path: /root/ts-wp-db-dump/ts_tech_db.sql
+       regexp: 'XXX.XXX.XXX.XXX'
+       replace: "{{ hostvars['localhost']['gce_web_host_1']['instance_data'][0]['public_ip'] }}"
+
+   - name: Bring Up services
+     shell: |
+       systemctl start mariadb.service
+
+   - name: Drop database with name 'ts_tech_db'
+     mysql_db:
+       name: ts_tech_db
+       state: absent
+       login_user: root
+       login_password: 
+
+   - name: Import .sql similar to mysql -u <username> -p <password> < hostname.sql
+     mysql_db:
+       state: import
+       name: all
+       target: /root/ts-wp-db-dump/ts_tech_db.sql
+
+   - name: Add mysql-user
+     mysql_user: name={{ mysql_user }}
+                 password={{ mysql_pass }}
+                 priv=*.*:ALL,GRANT
+                 host=%
+                 state=present
+                 login_user=root
+                 login_password=

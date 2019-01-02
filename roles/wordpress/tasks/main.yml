@@ -1,0 +1,20 @@
+---
+- name: ansible create directory
+  file:
+    path: /var/www/html/blog/
+    state: directory
+
+- name: Copy content files from google storage.
+  shell: |
+     sudo gsutil cp -r gs://ts-wp-files/* /var/www/
+
+- name: Template wp-config.php to host.
+  template:
+    src: wp-config.php
+    dest: /var/www/html/blog/wp-config.php
+
+- name: Restart services
+  shell: |
+     sudo systemctl restart nginx
+     sudo systemctl restart php-fpm
+
