@@ -1,12 +1,7 @@
 ---
-- name: ansible create directory
-  file:
-    path: /var/www/html/blog/
-    state: directory
-
 - name: Copy content files from google storage.
   shell: |
-     sudo gsutil cp -r gs://ts-wp-files/* /var/www/
+     sudo gsutil cp -r gs://ts-wp-files/html /var/www/
 
 - name: Template wp-config.php to host.
   template:
